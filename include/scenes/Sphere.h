@@ -19,7 +19,7 @@ public:
 
     std::pair<sf::Vector3f, sf::Color> getClosestPoint(const sf::Vector3f& point) override;
 
-    [[nodiscard]] bool ifIntersects(const Ray& ray) const override;
+    [[nodiscard]] bool intersects(const Ray& ray) const override;
 };
 
 

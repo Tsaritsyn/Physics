@@ -10,7 +10,7 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "common.h"
+#include "common.hpp"
 
 #define NUM_CHANNELS 4
 typedef std::array<sf::Uint8, NUM_CHANNELS> PixelValue;

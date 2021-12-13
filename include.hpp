@@ -5,7 +5,7 @@
 #ifndef PHYSICS_INCLUDE_HPP
 #define PHYSICS_INCLUDE_HPP
 
-#include "common.h"
+#include "common.hpp"
 #include "scenes.hpp"
 #include "App.h"
 

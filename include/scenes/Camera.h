@@ -11,27 +11,44 @@
 #include "Ray.h"
 
 class Camera {
-    sf::Vector3f m_origin, m_direction;
-    sf::Vector2f m_size;        // size of the grid in meters
+protected:
     PixelGrid m_grid;
-    sf::Vector2f m_mpp; // metres per pixel
-
-    sf::Vector3f pixelPos(unsigned x, unsigned y) const;
+    sf::Vector3f m_origin;
 
 public:
-    Camera(const sf::Vector3f& origin, const sf::Vector3f& direction, const sf::Vector2f& size, const sf::Vector2u& grid_size)
-    : m_origin(origin), m_direction(direction), m_size(size), m_grid(grid_size.y, grid_size.x),
-      m_mpp(size.x / grid_size.x, size.y / grid_size.y)
-    {};
+    /**
+     * @param origin origin of the camera
+     * @param grid_size size of its grid in pixels (horizontal, vertical)
+     */
+    Camera(const sf::Vector3f& origin, const sf::Vector2u& grid_size): m_origin(origin), m_grid(grid_size.y, grid_size.x) {};
 
-    [[nodiscard]] Ray sampleRay(unsigned x, unsigned y) const;
+    /**
+     * Samples ray for a specified pixel
+     *
+     * @param x horizontal coordinate of the pixel
+     * @param y vertical coordinate of the pixel
+     * @return a ray with direction of that of the camera and going through the given pixel determining its color
+     */
+    [[nodiscard]] virtual Ray sampleRay(unsigned x, unsigned y) = 0;
 
-    void updatePixel(unsigned x, unsigned y, const sf::Color& color) { m_grid.setPixel(x, y, color);};
+    /**
+     * Changes the color of the given pixel wrt the given value.
+     */
+    virtual void updatePixel(unsigned x, unsigned y, const sf::Color& color) = 0;
 
-    [[nodiscard]] unsigned getHeight() const {return m_grid.getHeight();};
+    /**
+     * @return height of the camera grid in pixels
+     */
+    unsigned getHeight() {return m_grid.getHeight();};
 
-    [[nodiscard]] unsigned getWidth() const {return m_grid.getWidth();};
+    /**
+     * @return width of the camera grid in pixels
+     */
+    unsigned getWidth() {return m_grid.getWidth();};
 
+    /**
+     * @return the pixel grid of the camera
+     */
     [[nodiscard]] const PixelGrid& getView() const {return m_grid;};
 };
 

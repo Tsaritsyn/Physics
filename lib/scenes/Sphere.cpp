@@ -13,7 +13,7 @@ float Sphere::getDistance(const sf::Vector3f &point) {
     return norm(m_center - point) - m_radius;
 }
 
-bool Sphere::ifIntersects(const Ray &ray) const {
+bool Sphere::intersects(const Ray &ray) const {
     auto center_dir = m_center - ray.getOrigin();
     auto dot_criterion = center_dir * ray.getDirection();
     if (dot_criterion < 0) return false;
