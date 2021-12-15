@@ -13,13 +13,15 @@ class Sphere: public Object {
     sf::Color m_color;
 
 public:
-    Sphere(const sf::Vector3f& center, float radius, const sf::Color& color = sf::Color::Red): m_center(center), m_radius(radius), m_color(color) {};
+    Sphere(const sf::Vector3f& center, float radius, const sf::Color& color = sf::Color::Red);
 
-    float getDistance(const sf::Vector3f& point) override;
+    [[nodiscard]] float getDistance(const sf::Vector3f& point) const override;
 
-    std::pair<sf::Vector3f, sf::Color> getClosestPoint(const sf::Vector3f& point) override;
+    [[nodiscard]] std::pair<Point, float> getClosestPoint(const sf::Vector3f& point) const override;
 
     [[nodiscard]] bool intersects(const Ray& ray) const override;
+
+    [[nodiscard]] bool intersects(const BBox& bbox) const override;
 };
 
 

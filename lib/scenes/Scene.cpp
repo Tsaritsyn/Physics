@@ -5,7 +5,13 @@
 #include "scenes/Scene.h"
 
 Scene::Scene() {
-    m_cameras.emplace_back(new PinholeOrthoCamera({-5., 0., 0.}, {1., 0., 0.}, {0., -1., 0.4}, 60., {540, 360}));
+    m_cameras.emplace_back(new PinholeOrthoCamera(
+            {-20., 0., 10.},
+            {1., 0., -0.4},
+            {0., -1., 0.},
+            30.,
+            {1080, 720})
+            );
     m_objects.emplace_back(new Sphere({2., 0., 0.}, 1));
     m_objects.emplace_back(new Sphere({5., 2., 1.}, 1.5, sf::Color::Cyan));
     m_objects.emplace_back(new Sphere({10., -1., -2.}, 0.5, sf::Color::Yellow));
@@ -28,8 +34,8 @@ void Scene::updateCameraView(size_t ind) {
                 ray.propagate(dist_to_closest_object);
 
                 if (dist_to_closest_object < epsilon) {
-                    const auto[_, color] = closest_object->getClosestPoint(ray.getOrigin());
-                    ray.setColor(color);
+                    const auto[point, _] = closest_object->getClosestPoint(ray.getOrigin());
+                    ray.setColor(point.color);
                     break;
                 }
             }

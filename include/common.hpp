@@ -94,6 +94,18 @@ public:
 template <typename T>
 std::ostream& operator <<(std::ostream& os, const Matrix3<T>& M);
 
+/// borders excluded
+template <typename T>
+inline bool in_interval(T value, T min_value, T max_value) {return (value > min_value) && (value < max_value);}
+
+/// borders included
+template <typename T>
+inline bool in_range(T value, T min_value, T max_value) {return (value >= min_value) && (value <= max_value);}
+
+/// clips the given value to the given range
+template <typename T>
+inline T clip(T value, T min_value, T max_value) {return std::max(std::min(value, max_value), min_value);}
+
 #include "../lib/common.inl"
 
 typedef Matrix3<float> Matrix3f;

@@ -9,14 +9,34 @@
 
 #include "common.hpp"
 #include "Ray.h"
+#include "BBox.h"
+
+struct Point {
+    sf::Vector3f pos;
+    sf::Color color;
+};
 
 class Object {
-public:
-    virtual float getDistance(const sf::Vector3f& point) = 0;
+protected:
+    BBox m_bbox;
 
-    virtual std::pair<sf::Vector3f, sf::Color> getClosestPoint(const sf::Vector3f& point) = 0;
+public:
+    [[nodiscard]] virtual float getDistance(const sf::Vector3f& point) const = 0;
+
+    /**
+     * @return the closest point and the distance to it
+     */
+    [[nodiscard]] virtual std::pair<Point, float> getClosestPoint(const sf::Vector3f& point) const = 0;
 
     [[nodiscard]] virtual bool intersects(const Ray& ray) const = 0;
+
+    /**
+     * Checks for the intersection of the object with the given bounding box.
+     *
+     * @return false, if the intersection surely does not exist and true if it might exist (it will be more precise
+     *  for simple convex objects like spheres)
+     */
+    [[nodiscard]] virtual bool intersects(const BBox& bbox) const = 0;
 };
 
 

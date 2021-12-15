@@ -8,7 +8,7 @@
 //#include <SFML/Graphics.hpp>
 #include "BBox.h"
 #include "Object.h"
-#include "common.h"
+#include "common.hpp"
 #include <memory>
 
 class Octree {
