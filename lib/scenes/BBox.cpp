@@ -9,21 +9,17 @@ static inline bool intersection_in_range(float x0, float t, float d, float x_min
 }
 
 bool BBox::contains(const sf::Vector3f &point) const {
-    return (in_interval(point.x, m_min.x, m_max.x)
-            && in_interval(point.y, m_min.y, m_max.y)
-            && in_interval(point.z, m_min.z, m_max.z));
+    return (in_range(point.x, m_min.x, m_max.x)
+            && in_range(point.y, m_min.y, m_max.y)
+            && in_range(point.z, m_min.z, m_max.z));
 }
 
-bool BBox::intersects(const Ray &ray) const {
+bool BBox::intersectsWith(const Ray &ray) const {
     const auto o = ray.getOrigin();
     const auto d = ray.getDirection();
 
-//    auto x_inside = in_interval(o.x, m_min.x, m_max.x);
-//    auto y_inside = in_interval(o.y, m_min.y, m_max.y);
-//    auto z_inside = in_interval(o.z, m_min.z, m_max.z);
-//    if the origin of the ray in inside the bbox, then it surely intersects with it
+//    if the origin of the ray in inside the bbox, then it surely intersectsWith with it
     if (contains(o)) return true;
-//    if (x_inside && y_inside && z_inside) return true;
 
     if (!in_interval(o.x, m_min.x, m_max.x)) {
         float t = -1;
@@ -65,10 +61,10 @@ bool BBox::contains(const BBox &other) const {
     return (contains(other.m_min) && contains(other.m_max));
 }
 
-bool BBox::intersects(const BBox &other) const {
+bool BBox::intersectsWith(const BBox &other) const {
     if (other.contains(*this) || contains(other)) return true;
 
-//    they intersect if any vertex of the other lies inside this one
+//    they intersect if any vertex of the other lies inside this one or vice versa
     return contains(other.m_min)
         || contains(other.m_max)
         || contains({other.m_min.x, other.m_max.y, other.m_max.z})
@@ -76,7 +72,16 @@ bool BBox::intersects(const BBox &other) const {
         || contains({other.m_min.x, other.m_min.y, other.m_max.z})
         || contains({other.m_max.x, other.m_max.y, other.m_min.z})
         || contains({other.m_min.x, other.m_max.y, other.m_min.z})
-        || contains({other.m_max.x, other.m_min.y, other.m_min.z});
+        || contains({other.m_max.x, other.m_min.y, other.m_min.z})
+        ||
+           other.contains(m_min)
+        || other.contains(m_max)
+        || other.contains({m_min.x, m_max.y, m_max.z})
+        || other.contains({m_max.x, m_min.y, m_max.z})
+        || other.contains({m_min.x, m_min.y, m_max.z})
+        || other.contains({m_max.x, m_max.y, m_min.z})
+        || other.contains({m_min.x, m_max.y, m_min.z})
+        || other.contains({m_max.x, m_min.y, m_min.z});
 }
 
 sf::Vector3f BBox::getClosestPoint(const sf::Vector3f &p) const {
@@ -85,5 +90,50 @@ sf::Vector3f BBox::getClosestPoint(const sf::Vector3f &p) const {
             clip(p.y, m_min.y, m_max.y),
             clip(p.z, m_min.z, m_max.z)
             };
+}
+
+BBox &BBox::uniteWith(const BBox &other) {
+    m_min.x = std::min(m_min.x, other.m_min.x);
+    m_min.y = std::min(m_min.y, other.m_min.y);
+    m_min.z = std::min(m_min.z, other.m_min.z);
+
+    m_max.x = std::max(m_max.x, other.m_max.x);
+    m_max.y = std::max(m_max.y, other.m_max.y);
+    m_max.z = std::max(m_max.z, other.m_max.z);
+
+    return *this;
+}
+
+std::vector<BBox> BBox::subdivide() const {
+    auto hd = (m_max - m_min) / 2.f;    // half diagonal
+    const std::vector<sf::Vector3f> minimums{
+        m_min,
+        m_min + sf::Vector3f{hd.x, 0., 0.},
+        m_min + sf::Vector3f{0., hd.y, 0.},
+        m_min + sf::Vector3f{0., 0., hd.z},
+        m_min + sf::Vector3f{hd.x, hd.y, 0.},
+        m_min + sf::Vector3f{hd.x, 0., hd.z},
+        m_min + sf::Vector3f{0., hd.y, hd.z},
+        m_min + hd
+    };
+    std::vector<BBox> result;
+    result.reserve(minimums.size());
+    for (const auto& sub_min: minimums)
+        result.emplace_back(sub_min, sub_min + hd);
+    return result;
+}
+
+std::ostream &operator<<(std::ostream &os, const BBox &bbox) {
+    return os << "BBox(" << bbox.m_min << ": " << bbox.m_max << ')';
+}
+
+float BBox::getMinDimension() const {
+    auto diagonal = m_max - m_min;
+    return std::min(diagonal.x, std::min(diagonal.y, diagonal.z));
+}
+
+float BBox::getMaxDimension() const {
+    auto diagonal = m_max - m_min;
+    return norm(diagonal);
 }
 

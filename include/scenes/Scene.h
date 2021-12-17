@@ -11,14 +11,17 @@
 
 #include "PinholeOrthoCamera.h"
 #include "Sphere.h"
+#include "Octree.h"
 
 
 class Scene {
     std::vector<std::unique_ptr<Camera>> m_cameras;
-    std::vector<std::shared_ptr<Object>> m_objects;
+    std::unordered_set<std::shared_ptr<Object>> m_objects;
+    std::shared_ptr<Octree> m_octree;
+    BBox m_bbox;
 
     /**
-     * @param objects_to_check set of scene objects among which search for closest one
+     * @param objects_to_check set of scene objects among which to search for closest one
      * @return distance to the closest object and its index in object array
      */
     [[nodiscard]] static std::pair<float, std::shared_ptr<Object>>

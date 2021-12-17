@@ -12,6 +12,8 @@
 #include <SFML/Graphics.hpp>
 
 #define epsilon 1e-4
+#define float_inf std::numeric_limits<float>::infinity()
+#define float_neg_inf std::numeric_limits<float>::lowest()
 
 std::ostream& operator <<(std::ostream& os, const sf::Color& color);
 

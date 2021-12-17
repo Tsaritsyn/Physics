@@ -28,7 +28,7 @@ public:
      */
     [[nodiscard]] virtual std::pair<Point, float> getClosestPoint(const sf::Vector3f& point) const = 0;
 
-    [[nodiscard]] virtual bool intersects(const Ray& ray) const = 0;
+    [[nodiscard]] virtual bool intersectsWith(const Ray& ray) const = 0;
 
     /**
      * Checks for the intersection of the object with the given bounding box.
@@ -36,7 +36,11 @@ public:
      * @return false, if the intersection surely does not exist and true if it might exist (it will be more precise
      *  for simple convex objects like spheres)
      */
-    [[nodiscard]] virtual bool intersects(const BBox& bbox) const = 0;
+    [[nodiscard]] virtual bool intersectsWith(const BBox& bbox) const = 0;
+
+    [[nodiscard]] const BBox& getBbox() const {return m_bbox;}
+
+    [[nodiscard]] virtual std::string str() const = 0;
 };
 
 

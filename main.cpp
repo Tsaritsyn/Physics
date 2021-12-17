@@ -8,7 +8,7 @@
 
 int main()
 {
-    App app({1080, 720}, "Physics");
+    App app({1920, 1080}, "Physics");
     app.run();
 
     return 0;

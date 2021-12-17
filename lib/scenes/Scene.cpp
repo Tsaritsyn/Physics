@@ -10,14 +10,25 @@ Scene::Scene() {
             {1., 0., -0.4},
             {0., -1., 0.},
             30.,
-            {1080, 720})
+            {1920, 1080})
             );
-    m_objects.emplace_back(new Sphere({2., 0., 0.}, 1));
-    m_objects.emplace_back(new Sphere({5., 2., 1.}, 1.5, sf::Color::Cyan));
-    m_objects.emplace_back(new Sphere({10., -1., -2.}, 0.5, sf::Color::Yellow));
-    m_objects.emplace_back(new Sphere({1., -3., -1.}, 1., sf::Color::Green));
-    m_objects.emplace_back(new Sphere({3., -2., 2.}, 2., sf::Color::Blue));
-    m_objects.emplace_back(new Sphere({7., 3., -1.5}, 0.75, {200, 200, 200}));
+    m_objects.emplace(new Sphere({2., 1., -1.}, 1.1));
+    m_objects.emplace(new Sphere({5., 2., 1.}, 1.5, sf::Color::Cyan));
+    m_objects.emplace(new Sphere({10., -0.5, -3.}, 0.5, sf::Color::Yellow));
+    m_objects.emplace(new Sphere({1., -3., -1.}, 1., sf::Color::Green));
+    m_objects.emplace(new Sphere({3., -2., 2.}, 2., sf::Color::Blue));
+    m_objects.emplace(new Sphere({7., 3., -1.5}, 0.75, {200, 200, 200}));
+
+//    determine the bounding box for all the objects on the scene
+    for (const auto& object: m_objects)
+        m_bbox.uniteWith(object->getBbox());
+
+////    build the octree for the scene
+    m_octree = std::make_shared<Octree>(m_bbox);
+    m_octree->fill_with(m_objects);
+    for (const auto& object: m_octree->getAllObjects())
+        std::cout << object->str() << '\n';
+    printf("Built an octree of depth %lu with %lu leaves\n", m_octree->getDepth(), m_octree->getLeavesNumber());
 }
 
 void Scene::updateCameraView(size_t ind) {
@@ -31,13 +42,14 @@ void Scene::updateCameraView(size_t ind) {
             while (true) {
                 const auto [dist_to_closest_object, closest_object] =
                         getDistanceToClosestObject(ray.getOrigin(), intersecting_objects);
-                ray.propagate(dist_to_closest_object);
 
                 if (dist_to_closest_object < epsilon) {
                     const auto[point, _] = closest_object->getClosestPoint(ray.getOrigin());
                     ray.setColor(point.color);
                     break;
                 }
+                if (dist_to_closest_object == float_inf) break;
+                ray.propagate(dist_to_closest_object);
             }
 
             m_cameras[ind]->updatePixel(x, y, ray.getColor());
@@ -46,7 +58,7 @@ void Scene::updateCameraView(size_t ind) {
 
 std::pair<float, std::shared_ptr<Object>>
 Scene::getDistanceToClosestObject(const sf::Vector3f &point, const std::unordered_set<std::shared_ptr<Object>> &objects_to_check) {
-    float dist_to_closest_object = std::numeric_limits<float>::infinity();
+    float dist_to_closest_object = float_inf;
     std::shared_ptr<Object> closest_object = nullptr;
 
     for (const auto& object: objects_to_check) {
@@ -61,9 +73,7 @@ Scene::getDistanceToClosestObject(const sf::Vector3f &point, const std::unordere
 
 std::unordered_set<std::shared_ptr<Object>>
 Scene::getIntersectingObjects(const Ray &ray) {
-    std::unordered_set<std::shared_ptr<Object>> result;
-    for (const auto& object: m_objects)
-        if (object->intersects(ray)) result.insert(object);
-    return result;
+//    we query the scene's octree
+    return m_octree->getIntersectingObjects(ray);
 }
 

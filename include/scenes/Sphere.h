@@ -19,9 +19,11 @@ public:
 
     [[nodiscard]] std::pair<Point, float> getClosestPoint(const sf::Vector3f& point) const override;
 
-    [[nodiscard]] bool intersects(const Ray& ray) const override;
+    [[nodiscard]] bool intersectsWith(const Ray& ray) const override;
 
-    [[nodiscard]] bool intersects(const BBox& bbox) const override;
+    [[nodiscard]] bool intersectsWith(const BBox& bbox) const override;
+
+    [[nodiscard]] std::string str() const override;
 };
 
 
